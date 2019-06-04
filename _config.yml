@@ -4,5 +4,5 @@ baseurl: /docs
 title: Lyra
 collections:
   docs:
-    permalink: /:path/
+    permalink: /:title:output_ext
     output: true

@@ -1,5 +1,12 @@
-Puppet Workflow DSL
-===
+---
+title: Puppet workflow DSL
+layout: default
+category: reference
+order: 5
+---
+
+# Puppet workflow DSL
+
 For an explanation of the semantics of each element, please see [Workflow Semantics](workflow-semantics.md)
 
 ## Steps

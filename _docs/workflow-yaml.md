@@ -2,8 +2,9 @@
 title: YAML workflows
 layout: default
 category: reference
-order: 1
+order: 4
 ---
+# YAML workflows
 
 For an explanation of the semantics of each element, please see [Workflow Semantics](workflow-semantics.md)
 
