@@ -1,5 +1,12 @@
-Workflow
-===
+---
+title: Workflow semantics
+layout: default
+category: reference
+order: 3
+---
+
+# Workflow semantics
+
 This document describes the generic semantics of a workflow in a language neutral way. See [Puppet Workflow DSL](workflow-puppet-dsl.md) and [YAML Workflow](workflow-yaml.md) for language specific declarations.
 
 A Workflow consists of a set of steps that are either declarative or imperative in nature. A `resource` of a certain type, that maps a desired state to to a handler for that state, is an example of a declarative step, whereas an `action` step with a code block, is an example of an imperative step.

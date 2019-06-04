@@ -5,10 +5,12 @@ category: reference
 order: 1
 ---
 
+# Architecture
+
 ## Components
 Here’s a high-level overview of the components within Lyra.
 
-<p align="center"><img src="media/architecture.png" alt="architecture"></p>
+<p align="center"><img src="architecture.png" alt="architecture"></p>
 
 ### Manifests
 
@@ -54,7 +56,7 @@ An external process described by a service definition. Examples of services are:
 
 * **Puppet-Workflow** - Language Front-end for Puppet. Produces step definitions from Puppet manifests
 
-<p align="center"><img src="media/services.png" alt="services"></p>
+<p align="center"><img src="services.png" alt="services"></p>
 
 
 ## Principles

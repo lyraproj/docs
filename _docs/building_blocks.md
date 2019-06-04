@@ -2,12 +2,14 @@
 title: Building blocks
 layout: default
 category: reference
-order: 1
+order: 2
 ---
+
+# Building blocks
 
 Consists of a Provider Framework, a Lookup Framework, a Workflow Engine, and polyglot Language front-ends.
 
-<p align="center"><img src="media/buildingblocks.png" alt="Lyra"></p>
+<p align="center"><img src="buildingblocks.png" alt="Lyra"></p>
 
 ## Workflow
 A Workflow describes a collection of Activities and must be declared in such a way that all input requirements of all contained activities have the potential to be fulfilled within the workflow itself.
