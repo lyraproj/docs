@@ -1,0 +1,8 @@
+theme: jekyll-theme-minimal
+logo: assets/lyratile1.png
+baseurl: /docs
+title: Lyra
+collections:
+  docs:
+    permalink: /:path/
+    output: true
