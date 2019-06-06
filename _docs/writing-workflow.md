@@ -2,27 +2,23 @@
 title: Writing a Lyra workflow in YAML
 layout: default
 category: Using Lyra
-order: 4
+order: 1
 ---
 
 # Writing a Lyra workflow in YAML
 
 Use a YAML workflow to write steps for declarative resources or reference other workflows.
 
-Before you start writing your workflow, map out the resources you're creating and think about the values each step will return, and the parameters that each step requires before Lyra can apply it.  
+Before you start writing your workflow, think about map out the resources you're creating and think about the parameters that each step requires. Look at the typesets in Lyra's build/types directory to get an idea of the required attributes for the type you're using.  
 
 ## Declaring parameters and returns
-<!--
-Include:
-Workflows and steps can both take parameters and returns. 
-Required parameters and `data.yaml` 
--->
 
-Lyra can infer parameter declarations in YAML workflows, so you can omit `parameters` unless you're using a `lookup` key. A step can only be executed when all parameters are available. Those parameters must come from either the top-level workflow parameters or the returns of other steps. Parameters and returns are correlated by name and so must be unique within a workflow.
+Each step in a workflow consumes parameters and, if necessary, produces returns for other steps in the workflow to use. Lyra can only execute a step when all of it's required parameters are available. If you need to use parameters that are generated from outside of a workflow, you can declare these as top-level workflow parameters. Similarly, you can declare top-level workflow returns -- the end result of a workflow -- for use in other workflows. Parameters and returns are correlated by name and so must be unique within a workflow.
 
-Lyra workflows require a `parameters` declaration under the following circumstances:
+
+Lyra workflows require a top-level `parameters` declaration under the following circumstances:
 * If a step in your workflow requires a parameter that is not generated as a return by another step in the workflow. For example, if a step in your workflow requires a subnet ID, and you want to use an existing subnet instead of creating a subnet in the workflow, you must declare the subnet parameter using the `parameters` declaration.  
-* If you intend to use a `lookup` key to map to a parameter in your `data.yaml` file.
+* If you've defined parameter in your `data.yaml` file and need to use a `lookup` key to map the parameter.
 
 
 A `parameters` declaration can include the following:
@@ -42,15 +38,17 @@ A `parameters` declaration can include the following:
 
   ```
   parameters:
-    characters:
+    akira_characters:
       type: Hash[String,String]
-      lookup: akira.characters
+      lookup: akira.tetsuo
   ```
 
-The `lookup` key corresponds to a key in the `data.yaml` file found in Lyra's root directory. The keys you reference in your `parameters` declaration must exist in the `data.yaml` file before you apply the workflow. The `data.yaml` entry for characters might look like this:
+The `lookup` key corresponds to a key in the `data.yaml` file found in Lyra's root directory. The `lookup` keys you reference in your `parameters` declaration must exist in the `data.yaml` file before you apply the workflow. The `data.yaml` entry for characters looks like this:
 
 ```
-Example coming soon
+Akira:
+  characters:
+    tetsuo: "Tetsuo Shima"
 ```
 
 Use the `returns` key to map the expected output values of your workflow. For example, you could write a workflow that provisions two load balancers and returns two load balancer IDs. Contrary to `parameters`, you cannot declare the type for a return, as Lyra always infers the type. A `returns` declaration can include the following:
@@ -112,9 +110,10 @@ attributes => {
 
 ## Workflow example
 
-<!-->
-Introduce example and explain use of parameters and returns. Also include explanation of foobernetes type and direct users to it's location in lyra repo. 
-<-->
+This example is based on the Foobernetes, a fictional cloud provider used to illustrate and test the capabilities of Lyra. 
+
+The workflow deploys a fictional application consisting of a database, an application server, a web server, and a load balancer. Each step in this workflow is a resource step -- a declarative step that defines the desired state for a resource.
+
 
 ```
 parameters:
@@ -163,6 +162,12 @@ steps:
       cpus: 16
       memory: 64G
 ```
+
+After you apply the workflow, Lyra orders and executes the steps based on their parameters and returns. In this case, Lyra executes the `database` step first as it doesn't require any implicit parameters from other steps in the workflow to provision the resource. Lyra provisions the database and returns `$databaseID`. Because the `$databaseID` return is now available, Lyra runs the `app-server` step and passes in `$databaseID` as a parameter. This process continues until Lyra provisions the load balancer and returns `loadBalancerID`. 
+
+Instead of creating real resources, applying this workflow in Lyra produces a .JSON representation of the deployed fictional resources in Lyra's root directory.
+
+Fore more information on testing with Foobernetes, read the [annotated Kubernetes workflow](https://github.com/lyraproj/lyra/blob/master/workflows/foobernetes.yaml).
 
 <!-- Stuff to add
 referencing/linking another workflow
