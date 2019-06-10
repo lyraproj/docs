@@ -9,7 +9,7 @@ order: 1
 
 Use a YAML workflow to write steps for declarative resources or reference other workflows.
 
-Before you start writing your workflow, think about map out the resources you're creating and think about the parameters that each step requires. Look at the typesets in Lyra's build/types directory to get an idea of the required attributes for the type you're using.  
+Before you start writing your workflow, map out the resources you're creating and think about the parameters that each step requires. Look at the typesets in Lyra's build/types directory to get an idea of the required attributes for the type you're using.  
 
 ## Declaring parameters and returns
 
@@ -107,6 +107,49 @@ attributes => {
 …
 }
 ```
+## Using a workflow as a step
+
+Use the `call` key to link to a workflow as a step. 
+<!-- This should work, but I'm getting a type error. I'll edit it once I figure out what I'm doing wrong --> 
+
+The workflow in the following example calls the workflow `my_database`. The `my_database` workflow produces the `databaseID` needed by the `app-server` step.
+
+```
+…
+steps:
+  app-server:
+    returns:
+      appServerID: instanceID
+    Foobernetes::Instance:
+      location: eu1
+      image: lyra::application
+      config:
+        name: app-server1
+        databaseID: $databaseID
+      cpus: 4
+      memory: 8G
+
+  database:
+    call: my_database
+    returns: databaseID  
+```
+
+The `my_database` workflow looks like this:
+
+```  
+returns: [ databaseID ]    
+
+steps:
+
+  database:
+    returns:
+      databaseID: instanceID
+    Foobernetes::Instance:
+      location: eu1
+      image: "lyra::database"
+      cpus: 16
+      memory: 64G  
+``` 
 
 ## Workflow example
 
@@ -119,7 +162,7 @@ The workflow deploys a fictional application consisting of a database, an applic
 parameters:
   load_balancer_policy:
     type: String
-    lookup: foobernetes.lb_policy
+    lookup: foobernetes.policies
 returns: [ loadBalancerID ]    
 
 steps:
@@ -168,7 +211,3 @@ After you apply the workflow, Lyra orders and executes the steps based on their 
 Instead of creating real resources, applying this workflow in Lyra produces a .JSON representation of the deployed fictional resources in Lyra's root directory.
 
 Fore more information on testing with Foobernetes, read the [annotated Kubernetes workflow](https://github.com/lyraproj/lyra/blob/master/workflows/foobernetes.yaml).
-
-<!-- Stuff to add
-referencing/linking another workflow
-referencing/linking an imperative step? (if it's any different from another workflow) -->
