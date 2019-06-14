@@ -3,6 +3,7 @@ title: Building blocks
 layout: default
 category: reference
 order: 2
+cat_order: 3
 ---
 
 # Building blocks

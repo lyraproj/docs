@@ -3,6 +3,7 @@ title: YAML workflows
 layout: default
 category: reference
 order: 4
+cat_order: 3
 ---
 # YAML workflows
 

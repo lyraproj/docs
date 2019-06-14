@@ -3,6 +3,7 @@ title: Workflow semantics
 layout: default
 category: reference
 order: 3
+cat_order: 3
 ---
 
 # Workflow semantics

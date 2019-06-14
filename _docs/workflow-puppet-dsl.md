@@ -3,6 +3,7 @@ title: Puppet workflow DSL
 layout: default
 category: reference
 order: 5
+cat_order: 3
 ---
 
 # Puppet workflow DSL

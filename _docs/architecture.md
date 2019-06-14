@@ -3,6 +3,7 @@ title: Architecture
 layout: default
 category: reference
 order: 1
+cat_order: 3
 ---
 
 # Architecture
