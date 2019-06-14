@@ -1,7 +1,7 @@
 ---
 title: Building blocks
 layout: default
-category: reference
+category: Reference
 order: 2
 ---
 
