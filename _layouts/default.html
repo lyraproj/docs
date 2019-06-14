@@ -23,7 +23,7 @@
         {% assign mydocs = site.docs | group_by: 'category' %}
         {% for cat in mydocs %}
         <p><a href="{{ site.url }}/docs/">Overview</p>
-        <h4>{{ cat.name | capitalize }}</h4>
+        <h4>{{ cat.name }}</h4>
               {% assign items = cat.items | sort: 'order' %}
               {% for item in items %}
                 <p><a href="{{ item.url | relative_url }}">{{ item.title }}</a></p>

@@ -1,7 +1,7 @@
 ---
 title: YAML workflows
 layout: default
-category: reference
+category: Reference
 order: 4
 ---
 # YAML workflows
