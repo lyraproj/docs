@@ -1,7 +1,7 @@
 ---
 title: Workflow semantics
 layout: default
-category: reference
+category: Reference
 order: 3
 cat_order: 3
 ---

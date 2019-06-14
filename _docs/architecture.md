@@ -1,7 +1,7 @@
 ---
 title: Architecture
 layout: default
-category: reference
+category: Reference
 order: 1
 cat_order: 3
 ---
