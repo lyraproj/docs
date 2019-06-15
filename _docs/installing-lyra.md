@@ -3,6 +3,7 @@ title: Installing Lyra
 layout: default
 category: Setting up Lyra
 order: 1
+cat_order: 1
 ---
 
 # Installing Lyra

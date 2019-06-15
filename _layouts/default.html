@@ -20,9 +20,8 @@
         {% endif %}
 
         <p>Lyra is a workflow engine for provisioning and orchestrating cloud native infrastructure.</p>
-        {% assign mydocs = site.docs | group_by: 'category' %}
+        {% assign mydocs = site.docs | sort: 'cat_order' | group_by: 'category' %}
         {% for cat in mydocs %}
-        <p><a href="{{ site.url }}/docs/">Overview</p>
         <h4>{{ cat.name }}</h4>
               {% assign items = cat.items | sort: 'order' %}
               {% for item in items %}
