@@ -14,12 +14,11 @@
   <body>
     <div class="wrapper">
       <header>
-        
           {% if site.logo %}
           <img src="{{site.logo | relative_url}}" alt="Logo" />
         {% endif %}
-
         <p>Lyra is a workflow engine for provisioning and orchestrating cloud native infrastructure.</p>
+        <p><a href="{{ site.url }}/docs/">Overview</p>
         {% assign mydocs = site.docs | sort: 'cat_order' | group_by: 'category' %}
         {% for cat in mydocs %}
         <h4>{{ cat.name }}</h4>
