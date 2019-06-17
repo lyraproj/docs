@@ -87,7 +87,7 @@ The Type system used in Lyra is the same as in Puppet. This vouches for future i
 
 ### Federated Loaders
 
-The Loader framework provided by the *pcore* module is used to form a loader hierarchy in Lyra. The basic loader hierarchy finds the all the well-known types such as *String*, *Integer*, *Array*, etc. It also allows for new types and functions to be added. Lyra then adds a customized loader that finds services and definitions.
+The Loader framework provided by the *pcore* module is used to form a loader hierarchy in Lyra. The basic loader hierarchy finds all the well-known types such as *String*, *Integer*, *Array*, etc. It also allows for new types and functions to be added. Lyra then adds a customized loader that finds services and definitions.
 
 All types, functions, workflow steps, etc. are loaded on demand. The loader finds many things by looking for named files in well known directories such as "workflows" and "types". When a user invokes the Lyra CLI with an *apply* command with the name of a manifest, the loader will look for a file with that name that has a known extension such as ".yaml" or ".pp". If found, it will load it and hand it over to the workflow engine for execution.
 
@@ -111,7 +111,7 @@ A special collect step enables the declaration of a step that should be invoked 
 
 ### CRUD
 
-Read/Upsert/Delete are distinct functions that Lyra aims to provide out of the box. In many cases, all of them can be performed using one single workflow that declares a set of resources and a set of sane rules. The CRUD methods are:
+Create, read, update and delete are distinct functions that Lyra aims to provide out of the box. In many cases, all of them can be performed using one single workflow that declares a set of resources and a set of sane rules. The CRUD methods are:
 
 * Create - create an external resource based on a desired state.
 
@@ -145,7 +145,7 @@ A Hiera 5 compatible system used to lookup data from various sources such as yam
 
 ### pcore
 
-The Manages the Puppet Type System, dynamic typed values, Puppet compatible serialization of RichData, and bidirectional reflection between Go and Puppet types and values.
+Manages the Puppet Type System, dynamic typed values, Puppet compatible serialization of RichData, and bidirectional reflection between Go and Puppet types and values.
 
 ### wfe
 
