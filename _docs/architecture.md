@@ -1,8 +1,9 @@
 ---
 title: Architecture
 layout: default
-category: reference
+category: Reference
 order: 1
+cat_order: 3
 ---
 
 # Architecture
@@ -18,7 +19,7 @@ A manifest will typically consist of one workflow definition written in a declar
 
 ### Languages
 
-The currently supported languages are Puppet and Go. Manifests written in Go must be compiled and provided as a service.
+The currently supported languages are Puppet, Go, TypeScript and YAML. Manifests written in Go must either be compiled and provided as a service or executed using a Lyra link that performs a `go run` on the source.
 
 ### CLI
 
@@ -30,11 +31,11 @@ Performs evaluation of workflow step definitions using services. Services and de
 
 ### Loader
 
-Loads and manages all services, workflow activities, value types, and functions available to the system.
+Loads and manages all services, workflow steps, value types, and functions available to the system.
 
 ### Language Front-end
 
-Parses workflow manifests written in a specific language into step definitions that the workflow engine can understand. Executes imperative activities on demand using an evaluator native to the language.
+Parses workflow manifests written in a specific language into step definitions that the workflow engine can understand. Executes imperative steps (actions) on demand using an evaluator native to the language.
 
 ### Lookup
 
@@ -86,9 +87,9 @@ The Type system used in Lyra is the same as in Puppet. This vouches for future i
 
 ### Federated Loaders
 
-The Loader framework provided by the *puppet-evaluator* is used to form a loader hierarchy in Lyra. The basic loader hierarchy provided by the evaluator finds the all the well-known types such as *String*, *Integer*, *Array*, etc. It also allows for new types and functions to be added. Lyra then adds a customized loader that finds services and definitions.
+The Loader framework provided by the *pcore* module is used to form a loader hierarchy in Lyra. The basic loader hierarchy finds all the well-known types such as *String*, *Integer*, *Array*, etc. It also allows for new types and functions to be added. Lyra then adds a customized loader that finds services and definitions.
 
-Lyra performs a pre-load step where all services within reach are loaded and queried for what definitions they provide. This information is cached and made available to the CLI and the Workflow Engine. When a user enters an *apply* command with the name of a manifest, Lyra will find that manifest using its loader hierarchy.
+All types, functions, workflow steps, etc. are loaded on demand. The loader finds many things by looking for named files in well known directories such as "workflows" and "types". When a user invokes the Lyra CLI with an *apply* command with the name of a manifest, the loader will look for a file with that name that has a known extension such as ".yaml" or ".pp". If found, it will load it and hand it over to the workflow engine for execution.
 
 ### Serialization
 
@@ -98,25 +99,27 @@ The ability to send complex data structures between processes is very important 
 
 Lyra covers both programming models by providing specializations of a Step, such as Resource, which is pure declaration of a desired state.
 
-Lyra also allows generic activities that are very similar to functions. I.e. code that is called with parameters and returns values. Such activities can do virtually anything. When controlled by Guards they can mimic state-changes that are not easily expressed using resources.
+Lyra also allows generic *Action* steps that are very similar to functions. I.e. code that is called with parameters and returns values. Such actions can do virtually anything. When controlled by Guards they can mimic state-changes that are not easily expressed using resources.
 
 ### Ordering
 
 Lyra makes ordering easy without enforcing a specific model onto the user. As mentioned, all order of execution can be determined by the workflow engine, either by just looking at the input and output declarations of activities contained in a workflow, or by running all activities sequentially.
 
-Order isn’t applicable within individual activities because they are either a declaration of state, a block of code to execute, or a workflow in which case it manages its own order internally. If it is code, then that code is in charge of its own actions. The workflow engine treats an invocation of the code as one-off execution of something opaque.
+Order isn’t applicable within individual steps because they are either a declaration of state, a block of code to execute, or a workflow in which case it manages its own order internally. If it is code, then that code is in charge of its own actions. The workflow engine treats an invocation of the code as one-off execution of something opaque.
 
-A special iteration construct enables the declaration of a step that should be invoked multiple times. The declared step will run multiple times, each time with a different value of a given variable. The invocations will happen in parallel. Lyra has several iteration methods, including "times", “range”, “each”, and “each_pair”.
+A special collect step enables the declaration of a step that should be invoked multiple times. The declared step will run multiple times, each time with a different value of a given variable or variables. The invocations will happen in parallel. Lyra has two collect steps, "times" and “each”.
 
 ### CRUD
 
-Read/Upsert/Delete are distinct functions that Lyra aims to provide out of the box. In many cases, all of them can be performed using one single workflow that declares a set of resources and a set of sane rules. As a starting point, we can define:
+Create, read, update and delete are distinct functions that Lyra aims to provide out of the box. In many cases, all of them can be performed using one single workflow that declares a set of resources and a set of sane rules. The CRUD methods are:
+
+* Create - create an external resource based on a desired state.
 
 * Read - collect data and optionally report diffs between the desired and actual state.
 
-* Upsert - create resource if it doesn't exist, otherwise ensure desired state.
+* Update - update an external state with new data.
 
-* Delete - delete resources in the reverse order that they were created.
+* Delete - delete the external state.
 
 It is expected that more elaborate schemes will be architected and implemented. There will however still be cases where automated rules do not apply. In Lyra, this is solved by writing special workflows for the non-default situations.
 
@@ -128,13 +131,9 @@ Lyra is built using Go modules. The suite of repositories it uses can be found a
 
 Contains the Lyra CLI, Lyra Loader, and a suite of resource handlers.
 
-### wfe
+### terraform-bridge
 
-The Workflow Engine.
-
-### puppet-workflow
-
-The Puppet Language Front-end
+Makes Terraform providers usable to Lyra as resource handlers.
 
 ### servicesdk
 
@@ -142,15 +141,15 @@ Lyra Software Development Kit. Intended for authors of new Lyra services. It pro
 
 ### hiera
 
-A system used to lookup data from various sources such as yaml files, environment variables, or databases. This module is under development and provides only simple features using a hard-coded configuration. The goal is to provide functionality very similar to Hiera 5.
+A Hiera 5 compatible system used to lookup data from various sources such as yaml files, environment variables, or databases.
 
-### puppet-evaluator
+### pcore
 
-The Lyra Evaluator. Manages the Puppet Type System, dynamic typed values, Puppet compatible serialization of RichData, and evaluation of ASTs (Abstract Syntax Trees) produced by the Puppet Parser.
+Manages the Puppet Type System, dynamic typed values, Puppet compatible serialization of RichData, and bidirectional reflection between Go and Puppet types and values.
 
-### puppet-parser
+### wfe
 
-Parser used when parsing types and manifests. The parser is a full implementation of the Puppet DSL.
+The Workflow Engine.
 
 ### semver
 
@@ -163,6 +162,22 @@ Formalized Warning and Error reporting.
 ### data-protobuf
 
 Protobuf definition for transferring generic Data structures.
+
+### yaml-workflow
+
+The YAML Front-end
+
+### puppet-workflow
+
+The Puppet Language Front-end
+
+### puppet-parser
+
+Parser used when parsing types and manifests. The parser is a full implementation of the Puppet DSL.
+
+### puppet-evaluator
+
+The Manages the evaluation of ASTs (Abstract Syntax Trees) produced by the Puppet Parser.
 
 ### puppet-spec
 
