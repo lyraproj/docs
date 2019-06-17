@@ -11,9 +11,11 @@ Lyra uses steps and workflows to interact with cloud and API-driven resources.
 A workflow is a collection of steps. Each step consumes parameters and, if necessary, produces returns. For example, before you can provision a subnet in AWS, you need a Virtual Private Cloud (VPC). The YAML workflow below contains two steps, one for the VPC, and one for the subnet. The first step creates the VPC and returns an identifier, `vpc_id`:
 
 ```
-vpc:
+steps:
+  vpc:
     returns: vpc_id
-    Aws::Vpc:
+    resource: Aws::Vpc
+    value:
       cidr_block: 192.168.0.0/16
       instance_tenancy: default
 ```      
@@ -21,9 +23,10 @@ vpc:
 The second step creates the subnet. The subnet step depends on the parameter $vpc_id from the vpc step above:
 
 ```
-subnet:
+  subnet:
     returns: subnet_id
-    Aws::Subnet:
+    resource: Aws::Subnet
+    value:
       vpc_id: $vpc_id
       cidr_block: 192.168.1.0/24
       tags:
@@ -33,7 +36,7 @@ subnet:
 
 You can place steps in any order; Lyra's workflow engine infers the order of the steps in a workflow based on their parameters and returns. 
 
-Much of Lyra's power comes from the ability to mix imperative and declarative steps. Actions are imperative steps that contain a Go or Typescript function. Resources are declarative steps -- written in Go, Typescript, Puppet, or YAML -- that define a desired state. The vpc and subnet steps above are examples of resources. 
+Much of Lyra's power comes from the ability to mix imperative and declarative steps. Actions are imperative steps that contain a Go, Typescript or Puppet function. Resources are declarative steps -- written in Go, Typescript, Puppet, or YAML -- that define a desired state. The vpc and subnet steps above are examples of resources. 
 
 Lyra gives you the freedom to decide whether you want to use a resource or an action to solve a particular problem. Because workflows also function as steps, you can string multiple workflows together to perform complex tasks. For example, you could create a workflow to chain together a resource that provisions a Kubernetes cluster on AWS, and an action that sends a Slack notification once the cluster is provisioned. 
 

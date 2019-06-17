@@ -16,189 +16,170 @@ The YAML workflow is limited to two types of activities, the `workflow` and the 
 ### Common step properties
 ##### parameters
 
-The parameters declaration can be in one of the following forms:
+The parameters declaration is a hash with names mapping to hash of type and optional lookup where:
 
-Just a name:
-
-    parameters: i1
-
-An array of names:
-
-    parameters: [i1, i2]
-
-A hash with names mapping to hash of type and optional lookup where:
-
-    parameters:
-      i1:
-        type: String
-      i2:
-        type: String
-        lookup: some.key
+```yaml
+parameters:
+  i1:
+    type: String
+  i2:
+    type: String
+    lookup: some.key
+```
 
 declares the named parameters _i1_ and _i2_. The parameter _i2_ will get its value from a lookup.
 
-When using YAML, it is possible to infer all `input` declarations which means that it can often be omitted unless lookup is desired.
+When using YAML, it is possible to infer the `parameters` delcaration which means that it can often be omitted unless lookup is desired.
 
 #### returns
-similar to `parameters` but without the ability to declare type (it is always inferred) or lookups.
+Can use the same syntax as `parameters` but without the ability to declare `lookup` or:
 
 Single name of a state attribute (resource) or output of contained step (workflow)
 
-    returns: attr_x
+```yaml
+returns: attr_x
+```
 
 List of names of a state attributes (resource) or output of contained activities (workflow)
 
-    returns: [attr_x, attr_y]
+```yaml
+returns: [attr_x, attr_y]
+```
 
 An alias is used when it is desirable to give the output variable a different name than the attribute it references:
 
-    returns:
-      alias_x: attr_x
-      alias_y: attr_y
-
-A special construct can be used when it is desirable to group resource attributes into a Struct
-
-    returns:
-      o: [x1, x2]
-
-this example will result in an output name "o" that has the inferred type:
-
-    Struct[x1 => Like[<resource_type>, x1], x2 => Like[<resource_type>, x2]]
+```yaml
+returns:
+  alias_x: attr_x
+  alias_y: attr_y
+```
 
 #### when
 a step is considered to have a guard when it declares:
 
-     when: <guard expression>
+```yaml
+when: <guard expression>
+```
      
 the `<guard expression>` is a string containing a boolean expression consisting of variable names that are combined using the keywords `and` and `or`. The expression can also use parentheses to enforce evaluation order.
 
-#### sequential
-The sequential aspect of evaluation is controlled using the following syntax.
+#### times collector
+A times step declares that a step will be executed multiple times and that the resulting returns will be collected into an array. Example:
 
-     sequential: steps | iteration | both
+```yaml
+    nodes:
+      times: $ec2_nct
+      as: idx
+      step:
+        <step to be repeated here>
+```
 
-#### iteration
-Iteration is defined by adding an iteration key the step. The iteration must be a hash containing the four keys `name`, `function`, `over`, and `vars`. Example:
+#### each collector
+An each step declares that a step will be executed once for each value in an array or hash. Example:
 
-    iteration:
-      name: nodes
-      function: times
-      over: ec2_nct
-      vars: idx
-      
-The function can be one of `times`, `range`, or `each`, using one of the following combinations:
-
-      function: times
-      over: <count>
-      vars: <index>
-
-      function: range
-      over: [<from>, <to>]
-      vars: <index>
-
-      function: each
-      over: <array>
-      vars: <element>
-
-      function: each
-      over: <hash>
-      vars: [<key>, <value>]
+```yaml
+loadbalancers:
+  each:
+    - [primary, '10.0.0.1', false]
+    - [secondary, '10.0.0.2', true]
+  as:
+    - role
+    - ip
+    - replica
+  step:
+    returns: loadBalancerID
+    resource: Foobernetes::Loadbalancer
+    value:
+      loadBalancerIP: $ip
+      location: eu1
+      replica: $replica
+      webServerIDs: $webServers
+      tags:
+        team: "lyra team"
+        role: $role
+```
 
 ## Resource
 
 A resource contains a state which must be a key/value hash. Each key must be a string.
 
 ### Variable references
-An attribute value that starts with a '$' followed by an unqualified name is considered to be an `input`. Although `inputs` can be specified, they are always optional unless there's a desire to declare a lookup.
-
-Attribute values are the only elements subjected to the special $variable rule.
+An attribute value that starts with a '$' followed by an unqualified name is considered to be a reference to one of the named values available in the workflow, i.e. a parameter. Although an explicit `parameters` declaration can be specified, it is always optional unless there's a desire to declare a lookup.
 
 ### Examples
 
 #### Simple resource
 
-    vpc:
-      output: vpcId
-      state:
-        amazonProvidedIpv6CidrBlock: false
-        cidrBlock: 192.168.0.0/16
-        enableDnsHostnames: false
-        enableDnsSupport: false
-        isDefault: false
-        state: available
-        tags: $tags
+```yaml
+vpc:
+  returns: vpc_id
+  resource: Aws::Vpc
+  value:
+    cidr_block: 192.168.0.0/16
+    instance_tenancy: default
+    tags: $tags
+```
 
-In this example, the inferred input will be `input: [region, tags]`
+In this example, the inferred `parameters` will be:
 
-#### Resources using iteration
+```yaml
+parameters:
+  tags:
+    type: Hash[String,String]
+```
 
-     instance:
-       output:
-         key: instanceId
-         value: [publicIp, privateIp]
-       iteration:
-         name:     nodes
-         function: times
-         over:     ec2_cnt
-         vars:     ix
-       state:
-         region       : $region
-         ensure       : present
-         instanceId  : $ix
-         imageId     : ami-f90a4880
-         instanceType: t2.nano
-         keyName     : $keyName
-         tags         : $tags
+#### Resources using a collector
 
-This example will manage a number of ec2 instances. The actual count is fetched using a lookup.
-The final computed output is a variable named `nodes` with the type:
+This example creates two Aws instances named "lyra-instance-1" and "lyra-instance-2"
 
-    Hash[
-      Like[Lyra::Aws::Instance, instanceId],
-      Struct[
-        publicIp=>Like[Lyra::Aws::Instance, publicIp],
-        privateIp=>Like[Lyra::Aws::Instance, privateIp]
-      ]]
+```yaml
+nodes:
+  each: [lyra-instance-1, lyra-instance-2]
+  as: name
+  step:
+    resource: Aws::Instance
+    value:
+      instance_type: 't2.nano'
+      ami: 'ami-f90a4880'
+      subnet_id: $subnet_id1
+      tags:
+        name: $name
+        created_by: lyra
+```
 
 ## Workflow
 
-#### Examples
-
-Workflow that leverages the `typespace` to infer the resource types i.e. 'aws::vpc'
-
-    yamltest:
-      typespace: aws
-      input:
-        tags:
-          type: Hash[String,String]
-          lookup: aws.tags
-      output:
-        vpcId: String
-        subnetId: String
-      activities:
-        routetable:
-          output: routeTableId
-          state:
-            tags: $tags
-            vpcId: $vpcId
-        vpc:
-          output: vpcId
-          state:
-            amazonProvidedIpv6CidrBlock: false
-            cidrBlock: 192.168.0.0/16
-            enableDnsHostnames: false
-            enableDnsSupport: false
-            isDefault: false
-            state: available
-            tags: $tags
-        subnet:
-          output: subnetId
-          state:
-            vpcId: $vpcId
-            cidrBlock: 192.168.1.0/24
-            ipv6CidrBlock: ''
-            tags: $tags
-            assignIpv6AddressOnCreation: false
-            mapPublicIpOnLaunch: false
-            defaultForAz: false
-            state: available
+```yaml
+parameters:
+  tags:
+    type: Hash[String,String]
+    lookup: aws.tags
+returns:
+  vpc_id: String
+  subnet_id: String
+steps:
+  route_table:
+    resource: Aws::Route_table
+    value:
+      vpc_id: $vpc_id
+      tags:
+        name: lyra-routetable
+        created_by: lyra
+  vpc:
+    returns: vpc_id
+    resource: Aws::Vpc
+    value:
+      cidr_block: 192.168.0.0/16
+      instance_tenancy: default
+      tags: $tags
+  subnet:
+    returns:
+      subnet_id: subnet_id
+    resource: Aws::Subnet
+    value:
+      vpc_id: $vpc_id
+      cidr_block: 192.168.1.0/24
+      tags:
+        name: lyra-subnet
+        created_by: lyra
+```
