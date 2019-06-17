@@ -30,14 +30,14 @@ data or code|interpreted differently depending on style|no
 declares a set of parameters. Each parameter has a name and optional `type` and `lookup` expressions.
 
 ###### scope
-A parameter without a lookup expression must denote a variable known to the containing workflow, i.e. an parameter to the workflow itself or an `returns` variable from sibling step. When a workflow contains other workflows, each workflow acts as its own closure and nested references are not allowed.
+A parameter without a lookup expression must denote a variable known to the containing workflow, i.e. a parameter to the workflow itself or a `returns` variable from sibling step. When a workflow contains other workflows, each workflow acts as its own closure and nested references are not allowed.
 
-The input `type` can be omitted when the parameter maps to an output variable from other step because the type can then be inferred from the output.
+The input `type` can be omitted when the parameter maps to an output variable from another step because the type can then be inferred from the output.
 
-A step will have access to the `parameters` that it declares. It will not have access to any other variables. The reason for this is that steps may run in a process different from the workflow engine and will be executed with the presumption that the remote process holds no state. All state must hence be passed to a step in order for it to execute.
+A step will have access to the `parameters` that it declares. It will not have access to any other variables. The reason for this is that steps may run in a process different from the workflow engine and will be executed with the presumption that the remote process holds no state. A state must be passed to a step in order for it to execute.
 
 ##### returns
-declares the set of named and typed variables that a step will contribute to the workflow.
+Declares the set of named and typed variables that a step will contribute to the workflow.
 
 The `returns` for a `resource` step must always reference named attributes of its state. The `type` of such output can therefore always be inferred from the corresponding attribute and is hence optional.
 
@@ -48,13 +48,13 @@ declares a guard expression that must evaluate to `true` in order for the step t
 
 Since guards will impose conditional paths in the workflow, the number of guards must be limited or the validation will become very resource consuming. The current limit is 8 guards per workflow which results in a maximum of in 2<sup>8</sup> (256) possible paths of execution. More complex workflows can be created using sub-workflows contained in a parent workflow.
 
-#### Colletors
+#### Collectors
 A collector can be declared to iterate over `parameters` data or literals.
 
 Collector type|Description|Parameters|Variables
 --------------|-----------|----------|---------
-times|calls a contained step the number of times given by count|`count` - a positive integer|`index` - an integer that starts with zero and increments up to, but not including count
-each|calls a contained step once with all elements of a hash or an array|`collection` - a hash or array to iterate over|`value` - each element in the array or `key` and `value` to iterate over the associations of a hash
+times|Calls a contained step the number of times given by count|`count` - a positive integer|`index` - an integer that starts with zero and increments up to, but not including count
+each|Calls a contained step once with all elements of a hash or an array|`collection` - a hash or array to iterate over|`value` - each element in the array or `key` and `value` to iterate over the associations of a hash
 
 A collector step will always produce an array of values where each value is the result of calling the contained step.
 
@@ -76,10 +76,10 @@ When the workflow interacts with Resource steps, it delegates the apply of the s
 
 #### Resource Attributes
 ##### type
-The `resource` is an mandator type name that denotes the resource type.
+A mandatory type name that denotes the resource type.
 
 ##### external_id
-an optional id that denotes the external identifier of read-only (unmanaged) resource. The intended use for this is to establish relationships between the infrastructure defined by the workflow and pre-existing infrastructure that the workflow should make no attempt to manage.
+An optional ID that denotes the external identifier of read-only (unmanaged) resource. The intended use for this is to establish relationships between the infrastructure defined by the workflow and pre-existing infrastructure that the workflow should make no attempt to manage.
 
 ### Workflow
 A workflow combines a set of steps into a process. The `<data or code>` block is code that declares those steps.
