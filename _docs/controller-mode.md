@@ -1,12 +1,12 @@
 ---
-title: Run Lyra in Kubernetes controller mode
+title: Running Lyra in Kubernetes controller mode
 layout: default
 category: Using Lyra
 order: 2
 cat_order: 2
 ---
 
-# Run Lyra in Kubernetes controller mode
+# Running Lyra in Kubernetes controller mode
 
 Run Lyra in Kubernetes controller mode if you want Lyra to continuously apply a workflow and make sure that your resources exist in a desired state. 
 
