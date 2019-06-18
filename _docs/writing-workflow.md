@@ -14,7 +14,7 @@ Before you start writing your workflow, map out the resources you're creating an
 
 ## Declaring parameters and returns
 
-Each step in a workflow consumes parameters and, if necessary, produces returns for other steps in the workflow to use. Lyra can only execute a step when all of it's required parameters are available. If you need to use parameters that are generated from outside of a workflow, you can declare these as top-level workflow parameters. Similarly, you can declare top-level workflow returns -- the end result of a workflow -- for use in other workflows. Parameters and returns are correlated by name and so must be unique within a workflow.
+Each step in a workflow consumes parameters and, if necessary, produces returns for other steps in the workflow to use. Lyra can only execute a step when all of its required parameters are available. If you need to use parameters that are generated from outside of a workflow, you can declare these as top-level workflow parameters. Similarly, you can declare top-level workflow returns -- the end result of a workflow -- for use in other workflows. Parameters and returns are correlated by name and must be unique within a workflow.
 
 
 Lyra workflows require a top-level `parameters` declaration under the following circumstances:
@@ -25,19 +25,19 @@ Lyra workflows require a top-level `parameters` declaration under the following 
 A `parameters` declaration can include the following:
 * The name of an attribute. For example:
   
-  ```
+  ```yaml
   parameters: kaneda
   ```
 
 * An array of names. For example:
   
-  ```
+  ```yaml
   parameters: [kaneda, tetsuo]
   ```
 
 * A hash with a name mapping to a hash of type and an optional `lookup` key. For example: 
 
-  ```
+  ```yaml
   parameters:
     akira_characters:
       type: Hash[String,String]
@@ -46,7 +46,7 @@ A `parameters` declaration can include the following:
 
 The `lookup` key corresponds to a key in the `data.yaml` file found in Lyra's root directory. The `lookup` keys you reference in your `parameters` declaration must exist in the `data.yaml` file before you apply the workflow. The `data.yaml` entry for characters looks like this:
 
-```
+```yaml
 Akira:
   characters:
     tetsuo: "Tetsuo Shima"
@@ -55,19 +55,19 @@ Akira:
 Use the `returns` key to map the expected output values of your workflow. For example, you could write a workflow that provisions two load balancers and returns two load balancer IDs. Contrary to `parameters`, you cannot declare the type for a return, as Lyra always infers the type. A `returns` declaration can include the following:
 * The name of a return attribute from a step in the workflow, for example 
   
-  ```
+  ```yaml
   returns: kaneda
   ```
 
 * A list of names of return attributes from steps in the workflow. For example: 
   
-  ```
+  ```yaml
   returns: [kaneda, tetsuo]
   ```
 
 * A hash of aliases for return attributes. Use an alias to give a return attribute a different name to the attribute it references. For example:
   
-  ```
+  ```yaml
   returns:
     biker: kaneda
     psychic: tetsuo 
@@ -79,7 +79,7 @@ Steps make up the body of a workflow and define the workflow's behavior. Each st
 
 The body of a typical Lyra workflow uses the following syntax:
 
-```
+```yaml
 Steps:
   my_step:
     returns: return_name
@@ -115,7 +115,7 @@ Use the `call` key to link to a workflow as a step.
 
 The workflow in the following example calls the workflow `my_database`. The `my_database` workflow produces the `databaseID` needed by the `app-server` step.
 
-```
+```yaml
 …
 steps:
   app-server:
@@ -137,7 +137,7 @@ steps:
 
 The `my_database` workflow looks like this:
 
-```  
+```yaml  
 returns: [ databaseID ]    
 
 steps:
@@ -159,7 +159,7 @@ This example is based on the Foobernetes, a fictional cloud provider used to ill
 The workflow deploys a fictional application consisting of a database, an application server, a web server, and a load balancer. Each step in this workflow is a resource step -- a declarative step that defines the desired state for a resource.
 
 
-```
+```yaml
 parameters:
   load_balancer_policy:
     type: String
