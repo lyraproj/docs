@@ -1,9 +1,9 @@
 ---
 title: Deploying a Lyra workflow
 layout: default
-category: Setting up Lyra
-order: 2
-cat_order: 1
+category: Using Lyra
+order: 1
+cat_order: 2
 ---
 
 # Deploying a Lyra workflow
