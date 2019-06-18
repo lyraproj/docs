@@ -3,6 +3,7 @@ title: Writing a Lyra workflow in YAML
 layout: default
 category: Using Lyra
 order: 1
+cat_order: 2
 ---
 
 # Writing a Lyra workflow in YAML
